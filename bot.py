@@ -1,15 +1,30 @@
+import sys
 import telebot
 import mysql.connector
+from mysql.connector import errorcode
 
 bot = telebot.TeleBot("")
 
-db = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  passwd="root",
-  port="3307",
-  database="youtube"
-)
+try:
+    db = mysql.connector.connect(
+      host="localhost",
+      user="root",
+      passwd="root",
+      port="3307",
+      database="youtube"
+    )
+except mysql.connector.Error as err:
+  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+    print("Something is wrong with your user name or password")
+    sys.exit()
+  elif err.errno == errorcode.ER_BAD_DB_ERROR:
+    print("Database does not exist")
+    sys.exit()
+  else:
+    print(err)
+    sys.exit()
+
+
 
 cursor = db.cursor()
 
@@ -50,8 +65,197 @@ cursor = db.cursor()
 
 # print(cursor.rowcount, "записи были добавлены.")
 
+####################################################################
+# cursor.execute("CREATE TABLE categories (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), description VARCHAR(255))")
+# sql = "INSERT INTO categories (title, description) VALUES (%s, %s)"
+# val = [
+#   ('Телефоны', 'Описание телефонов'),
+#   ('Ноутбуки', 'Описание ноутбуков'),
+#   ('Ноутбуки другие', 'Описание других ноутбуков'),
+# ]
 
-user_data = {}
+# cursor.executemany(sql, val)
+# db.commit()
+
+
+# SELECT
+# cursor.execute("SELECT * FROM categories")
+# categories = cursor.fetchall()
+
+# for category in categories:
+#     print(category[1])
+
+# SELECT COLUMN
+# cursor.execute("SELECT title FROM categories")
+# categories = cursor.fetchall()
+
+# for nameCategory in categories:
+#     print(nameCategory)
+
+# SELECT ONE RECORD
+# cursor.execute("SELECT * FROM categories")
+# category = cursor.fetchone()
+# print(category)
+
+# user_data = {}
+
+# FILTER
+# cursor.execute("SELECT * FROM categories WHERE title = 'Ноутбуки'")
+# categories = cursor.fetchall()
+
+# for category in categories:
+#     print(category)
+
+# FILTER 2
+# cursor.execute("SELECT * FROM categories WHERE title LIKE '%Ноутбуки%'")
+# categories = cursor.fetchall()
+
+# for category in categories:
+#     print(category)
+
+# FILTER 1 SQL защита
+# sql = "SELECT * FROM categories WHERE title = %s"
+# val = ("Ноутбуки", )
+
+# cursor.execute(sql, val)
+# categories = cursor.fetchall()
+
+# for category in categories:
+#     print(category)
+
+
+# FILTER 2 SQL защита
+# sql = "SELECT * FROM categories WHERE title LIKE %s"
+# val = ("%Ноутбуки%", )
+
+# cursor.execute(sql, val)
+# categories = cursor.fetchall()
+
+# for category in categories:
+#     print(category)
+
+
+# ORDER ASC
+# cursor.execute("SELECT * FROM categories ORDER BY title")
+# categories = cursor.fetchall()
+
+# for category in categories:
+#     print(category)
+
+# ORDER DESC
+# cursor.execute("SELECT * FROM categories ORDER BY title DESC")
+# categories = cursor.fetchall()
+
+# for category in categories:
+#     print(category)
+
+###############################################################
+
+# DELETE RECORD
+# cursor.execute("DELETE FROM categories WHERE title = 'Ноутбуки'")
+# db.commit()
+# print('Запись удалена!')
+
+# DELETE ALL RECORDS
+# cursor.execute("DELETE FROM categories")
+# db.commit()
+# print('Записи удалены!')
+
+# DELETE RECORD защита SQL
+# sql = "DELETE FROM categories WHERE title = %s"
+# val = ("Ноутбуки", )
+# cursor.execute(sql, val)
+
+# db.commit()
+# print('Запись удалена!')
+
+# DROP TABLE
+# cursor.execute("DROP TABLE categories")
+# print('Таблица удалена!')
+
+# DROP TABLE если существует
+# cursor.execute("DROP TABLE IF EXISTS categories")
+# print('Таблица удалена!')
+
+# UPDATE RECORD
+# cursor.execute("UPDATE users SET first_name = 'Андрей' \
+#                 WHERE user_id = 2 ")
+# db.commit()
+# print('Запись обновлена!')
+
+# UPDATE RECORD защита SQL
+# sql = "UPDATE users SET first_name = %s \
+#                 WHERE user_id = %s"
+# val = ("Влад", 2)
+
+# cursor.execute(sql, val)
+# db.commit()
+# print('Запись обновлена!')
+
+# LIMIT
+# cursor.execute("SELECT * FROM users LIMIT 2")
+# users = cursor.fetchall()
+
+# for user in users:
+#     print(user)
+
+# LIMIT OFFSET
+# cursor.execute("SELECT * FROM users LIMIT 2 OFFSET 1")
+# users = cursor.fetchall()
+
+# for user in users:
+#     print(user)
+
+######### JOIN ############################
+# cursor.execute("CREATE TABLE user_groups (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255))")
+# sql = "INSERT INTO user_groups (title) VALUES (%s)"
+# val = [('Администратор', ), ('Модератор', ), ('Пользователь', )]
+
+# cursor.executemany(sql, val)
+# db.commit()
+
+# cursor.execute("ALTER TABLE users ADD COLUMN (user_group_id INT)")
+
+
+# sql = "SELECT \
+#     users.first_name AS user, \
+#     user_groups.title AS user_group \
+#     FROM users \
+#     JOIN user_groups ON users.user_group_id = user_groups.id"
+
+# cursor.execute(sql)
+# users = cursor.fetchall()
+
+# for user in users:
+#     print(user)
+
+###### LEFT JOIN #############
+# sql = "SELECT \
+#     users.first_name AS user, \
+#     user_groups.title AS user_group \
+#     FROM users \
+#     LEFT JOIN user_groups ON users.user_group_id = user_groups.id"
+
+# cursor.execute(sql)
+# users = cursor.fetchall()
+
+# for user in users:
+#     print(user)
+
+##### RIGHT JOIN #############
+# sql = "SELECT \
+#     users.first_name AS user, \
+#     user_groups.title AS user_group \
+#     FROM users \
+#     RIGHT JOIN user_groups ON users.user_group_id = user_groups.id"
+
+# cursor.execute(sql)
+# users = cursor.fetchall()
+
+# for user in users:
+#     print(user)
+
+
 
 class User:
     def __init__(self, first_name):
